@@ -1,45 +1,26 @@
-mod lib;
+mod pi;
 
 fn main() {
-    let settings = lib::load_settings();
+    let pkg_name = env!("CARGO_BIN_NAME");
+    let args = std::env::args().collect::<Vec<String>>();
 
-    let mut sum_a: f64 = 0.0;
-    let mut cur_a: f64 = 1.0;
-
-    let mut counter = 2;
-    let separator = "-".repeat(50);
-
-    for i in 1..=settings.accuracy {
-        if settings.show_calculating {
-            println!("{separator}");
-        }
-
-        if counter < 2 {
-            sum_a += 1.0 / cur_a;
-            counter = 2;
-
-            if settings.show_calculating {
-                println!("current action: +");
-            }
-        } else {
-            sum_a -= 1.0 / cur_a;
-            counter = 1;
-
-            if settings.show_calculating {
-                println!("current action: -");
-            }
-        }
-        cur_a += 2.0;
-
-        if settings.show_calculating {
-            println!("current denominator: {cur_a}");
-            println!("current step: {i}");
-            println!("current sum: {sum_a}");
-        }
+    if args.len() < 3 {
+        eprintln!("Not enough arguments!\nExample: {} [accuracy number] [numbers after dot]", pkg_name);
+        std::process::exit(1);
     }
 
-    let pi = 4.0 * sum_a * -1.0;
+    let accuracy = args[1]
+        .clone()
+        .trim()
+        .parse::<u64>()
+        .unwrap();
 
-    println!("\nPI Number: {:.1$}", pi, settings.numbers_after_dot);
-    let _ = std::io::stdin().read_line(&mut String::from(""));
+    let numbers_after_dot = args[2]
+        .clone()
+        .trim()
+        .parse::<usize>()
+        .unwrap();
+
+    let pi = pi::calculate_pi(accuracy);
+    println!("Calculated PI Number:\n{:.1$}", pi, numbers_after_dot);
 }
